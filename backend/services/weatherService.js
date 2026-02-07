@@ -28,11 +28,11 @@ const BEACHES = {
     locationKey: CHENNAI_LOCATION_KEY,
     coordinates: { lat: 12.7925, lon: 80.2514 }
   },
-  mahabalipuram: {
-    name: 'Mahabalipuram Beach',
-    key: 'mahabalipuram',
+  thiruvanmiyur: {
+    name: 'Thiruvanmiyur Beach',
+    key: 'thiruvanmiyur',
     locationKey: CHENNAI_LOCATION_KEY,
-    coordinates: { lat: 12.6269, lon: 80.1932 }
+    coordinates: { lat: 12.9826, lon: 80.2589 }
   }
 };
 

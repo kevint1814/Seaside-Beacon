@@ -11,7 +11,7 @@ console.log('🌅 Seaside Beacon script loading...');
 const CONFIG = {
     API_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000/api'
-        : 'https://seaside-beacon.onrender.com/api',
+        : 'https://seaside-beacon-production.up.railway.app/api',
     USE_BACKEND: true
 };
 
@@ -26,6 +26,202 @@ let state = {
     photographyInsights: null,
     isProcessing: false
 };
+
+// ==========================================
+// "WHY WE WAIT" MODAL - Impressive Explanation
+// ==========================================
+function showWhyWeWaitModal(hours, minutes) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('whyWeWaitModal');
+    if (existingModal) existingModal.remove();
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div id="whyWeWaitModal" class="why-wait-modal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        ">
+            <div class="why-wait-content" style="
+                background: white;
+                max-width: 600px;
+                width: 100%;
+                border-radius: 20px;
+                padding: 48px;
+                position: relative;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: slideUp 0.4s ease;
+            ">
+                <!-- Close Button -->
+                <button class="modal-close" onclick="document.getElementById('whyWeWaitModal').remove()" style="
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    background: #F5F5F5;
+                    border: none;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 20px;
+                    color: #737373;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='#E5E5E5'" onmouseout="this.style.background='#F5F5F5'">
+                    ×
+                </button>
+                
+                <!-- Header -->
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🌅</div>
+                    <h2 style="font-size: 28px; font-weight: 700; color: #0F0F0F; margin: 0 0 12px 0;">
+                        Why We Wait Until 6 PM
+                    </h2>
+                    <p style="font-size: 16px; color: #737373; margin: 0;">
+                        Quality predictions over instant guesses
+                    </p>
+                </div>
+                
+                <!-- Countdown Display -->
+                <div style="
+                    background: linear-gradient(135deg, #FFF4ED, #FFE5D9);
+                    border-radius: 16px;
+                    padding: 24px;
+                    text-align: center;
+                    margin-bottom: 32px;
+                    border: 2px solid #FFD4C0;
+                ">
+                    <div style="font-size: 14px; color: #D64828; font-weight: 600; margin-bottom: 8px;">
+                        NEXT PREDICTION AVAILABLE IN
+                    </div>
+                    <div style="font-size: 48px; font-weight: 700; color: #D64828; font-family: 'SF Mono', 'Monaco', monospace;">
+                        ${hours}h ${minutes}m
+                    </div>
+                </div>
+                
+                <!-- The Challenge -->
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 8px;">🌤️</span>
+                        The Challenge
+                    </h3>
+                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0;">
+                        Weather conditions are fluid and constantly evolving. Atmospheric parameters can shift dramatically throughout the day. Between 2 PM and 6 PM alone, cloud cover can change by 40%, visibility can double or halve, and wind patterns can completely reverse direction.
+                    </p>
+                </div>
+                
+                <!-- Our Solution -->
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 8px;">🎯</span>
+                        Our Solution
+                    </h3>
+                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0 0 16px 0;">
+                        We wait for AccuWeather's fresh 12-hour forecast that becomes available at 6 PM IST. This gives us the most accurate window into tomorrow morning's 6 AM conditions—when you'll actually be experiencing the sunrise.
+                    </p>
+                    <div style="background: #FAFAFA; border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #0F0F0F; margin-bottom: 12px;">
+                            What We Analyze:
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #404040;">
+                            <div>✓ Cloud movement patterns</div>
+                            <div>✓ Visibility trends</div>
+                            <div>✓ Precipitation probability</div>
+                            <div>✓ UV index development</div>
+                            <div>✓ Wind speed evolution</div>
+                            <div>✓ Humidity fluctuations</div>
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E5E5; font-size: 13px; color: #737373; text-align: center;">
+                            <strong>47+ atmospheric parameters</strong> analyzed for each prediction
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- The Benefit -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 8px;">⭐</span>
+                        The Result
+                    </h3>
+                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0;">
+                        You receive predictions with <strong>95%+ confidence</strong>, not rough estimates. Professional photographers trust precise timing. We do too. This is why we choose accuracy over speed—because your time at the beach matters.
+                    </p>
+                </div>
+                
+                <!-- CTA -->
+                <div style="
+                    background: linear-gradient(135deg, #0F0F0F, #262626);
+                    border-radius: 12px;
+                    padding: 24px;
+                    text-align: center;
+                    color: white;
+                ">
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                        📧 Never Miss a Perfect Sunrise
+                    </div>
+                    <p style="font-size: 14px; opacity: 0.9; margin: 0 0 16px 0; line-height: 1.5;">
+                        Get tomorrow's prediction delivered to your inbox at 4:00 AM daily—automatically, reliably, every morning.
+                    </p>
+                    <button onclick="document.getElementById('whyWeWaitModal').remove(); document.getElementById('emailBtn').click();" style="
+                        background: #D64828;
+                        color: white;
+                        border: none;
+                        padding: 14px 32px;
+                        border-radius: 8px;
+                        font-size: 15px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='#C23D1F'" onmouseout="this.style.background='#D64828'">
+                        Sign Up for Daily Updates
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Close on background click
+    document.getElementById('whyWeWaitModal').addEventListener('click', (e) => {
+        if (e.target.id === 'whyWeWaitModal') {
+            e.target.remove();
+        }
+    });
+}
 
 // ==========================================
 // INITIALIZE ON DOM READY
@@ -154,7 +350,11 @@ async function handlePrediction() {
         
     } catch (error) {
         console.error('❌ Prediction error:', error);
-        alert('Error: ' + error.message);
+        
+        // Don't show alert if we already showed the impressive modal
+        if (error.message !== 'MODAL_SHOWN') {
+            alert('Error: ' + error.message);
+        }
     } finally {
         state.isProcessing = false;
         
@@ -271,7 +471,10 @@ async function fetchPrediction() {
         if (data.data.weather.available === false) {
             const hours = data.data.weather.timeUntilAvailable.hours;
             const minutes = data.data.weather.timeUntilAvailable.minutes;
-            throw new Error(`⏰ Predictions available after 6 PM IST\n\nAvailable in: ${hours}h ${minutes}m\n\nSign up for daily 4 AM email updates below!`);
+            
+            // Show impressive "Why We Wait" modal instead of simple error
+            showWhyWeWaitModal(hours, minutes);
+            throw new Error('MODAL_SHOWN'); // Special error to prevent alert
         }
         
         state.weatherData = data.data.weather;
