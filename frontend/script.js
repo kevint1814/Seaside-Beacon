@@ -713,12 +713,12 @@ function updateVerdictCard() {
     const score = state.weatherData.prediction.score;
     const beach = state.weatherData.beach;
     
-    console.log('Verdict:', verdict, 'Score:', score);
+    console.log('Verdict:', verdict, 'Score:', score, 'Beach:', beach);
     
     // Update text content - FIXED: Using correct element IDs
     setText('statusText', verdict);  // Changed from 'verdictText'
     setText('confidenceValue', score + '%');  // Changed from 'verdictScore'
-    setText('beachName', beach);
+    setText('beachNameDisplay', beach);  // FIXED: Changed from 'beachName' to 'beachNameDisplay'
     setText('statusDescription', getVerdictDescription(verdict));  // Changed from 'predictionDescription'
     
     // Display AI Insight
