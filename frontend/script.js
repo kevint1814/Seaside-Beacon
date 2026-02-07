@@ -11,7 +11,7 @@ console.log('🌅 Seaside Beacon script loading...');
 const CONFIG = {
     API_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000/api'
-        : 'https://seaside-beacon-production.up.railway.app/api',
+        : 'https://seaside-beacon.onrender.com',
     USE_BACKEND: true
 };
 
