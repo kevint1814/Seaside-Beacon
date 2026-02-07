@@ -5,20 +5,18 @@
 const nodemailer = require('nodemailer');
 
 function createTransporter() {
+  // Use Brevo (Sendinblue) for reliable SMTP
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
-    secure: false, // Use TLS
+    secure: false,
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD
+      user: process.env.BREVO_USER || process.env.GMAIL_USER, // Your Brevo login email
+      pass: process.env.BREVO_API_KEY || process.env.GMAIL_APP_PASSWORD // Brevo SMTP key
     },
     tls: {
       rejectUnauthorized: false
-    },
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 60000 // 60 seconds
+    }
   });
 }
 
