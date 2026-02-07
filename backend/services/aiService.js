@@ -1,14 +1,21 @@
 // ==========================================
-// AI Service - Google Gemini Photography Insights
+// AI Service - Groq AI Photography Insights
 // ==========================================
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
-let genAI;
+let groqClient;
 try {
-  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  if (process.env.GROQ_API_KEY) {
+    groqClient = new Groq({
+      apiKey: process.env.GROQ_API_KEY
+    });
+    console.log('✅ Groq AI initialized');
+  } else {
+    console.warn('⚠️  Groq API not configured, using fallback');
+  }
 } catch (error) {
-  console.warn('⚠️  Gemini API not configured, using fallback');
+  console.warn('⚠️  Groq API initialization failed, using fallback');
 }
 
 /**
@@ -16,8 +23,8 @@ try {
  */
 async function generatePhotographyInsights(weatherData) {
   try {
-    if (genAI && process.env.GEMINI_API_KEY) {
-      return await generateAIInsights(weatherData);
+    if (groqClient && process.env.GROQ_API_KEY) {
+      return await generateGroqInsights(weatherData);
     } else {
       return generateRuleBasedInsights(weatherData);
     }
@@ -28,64 +35,67 @@ async function generatePhotographyInsights(weatherData) {
 }
 
 /**
- * AI-powered insights using Gemini
+ * AI-powered insights using Groq (Llama 3.3 70B)
  */
-async function generateAIInsights(weatherData) {
-  // Try multiple model names in order
-  const modelsToTry = [
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro-latest',
-    'gemini-1.5-pro',
-    'gemini-pro',
-    'models/gemini-1.5-flash',
-    'models/gemini-pro'
-  ];
-  
-  const prompt = `You are a professional sunrise photography expert. Generate recommendations for ${weatherData.beach} tomorrow at 6 AM.
+async function generateGroqInsights(weatherData) {
+  try {
+    console.log('🤖 Calling Groq AI for insights...');
+    
+    const prompt = `You are a professional sunrise photography expert. Generate recommendations for ${weatherData.beach} tomorrow at 6 AM.
 
 Weather: ${weatherData.forecast.temperature}°C, ${weatherData.forecast.cloudCover}% clouds, ${weatherData.forecast.visibility}km visibility, ${weatherData.forecast.windSpeed}km/h wind, ${weatherData.forecast.weatherDescription}.
 
-Respond ONLY with valid JSON (no markdown):
+Respond ONLY with valid JSON (no markdown, no code blocks):
 {
-  "greeting": "One enthusiastic sentence",
-  "insight": "Two sentences about photographic potential",
+  "greeting": "One enthusiastic sentence about tomorrow's conditions",
+  "insight": "Two sentences about photographic potential and what makes these conditions special",
   "goldenHour": {"start": "5:45 AM", "end": "7:00 AM", "quality": "Excellent/Good/Fair/Poor"},
   "cameraSettings": {"iso": "100-400", "shutterSpeed": "1/125-1/250", "aperture": "f/8-f/11", "whiteBalance": "5500-6000K"},
-  "compositionTips": ["tip1", "tip2", "tip3"]
+  "compositionTips": ["specific tip about this beach", "tip about these weather conditions", "creative technique suggestion"]
 }`;
 
-  let lastError;
-  
-  for (const modelName of modelsToTry) {
-    try {
-      console.log(`🧪 Trying Gemini model: ${modelName}`);
-      
-      const model = genAI.getGenerativeModel({ 
-        model: modelName,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
+    const completion = await groqClient.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional sunrise photography expert. Always respond with valid JSON only, no markdown formatting."
+        },
+        {
+          role: "user",
+          content: prompt
         }
-      });
-      
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().replace(/```json\n?/g, '').replace(/```/g, '').trim();
-      
-      const aiData = JSON.parse(text);
-      console.log(`✅ Successfully used Gemini model: ${modelName}`);
-      return { source: 'ai', model: modelName, ...aiData };
-      
-    } catch (error) {
-      console.warn(`⚠️  Model ${modelName} failed: ${error.message}`);
-      lastError = error;
-      continue;
+      ],
+      temperature: 0.7,
+      max_tokens: 1024,
+      response_format: { type: "json_object" }
+    });
+
+    const responseText = completion.choices[0]?.message?.content;
+    
+    if (!responseText) {
+      throw new Error('Empty response from Groq');
     }
+
+    // Clean up response (remove any markdown if present)
+    const cleanText = responseText
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim();
+
+    const aiData = JSON.parse(cleanText);
+    
+    console.log('✅ Groq AI insights generated successfully');
+    return { 
+      source: 'groq',
+      model: 'llama-3.3-70b',
+      ...aiData 
+    };
+
+  } catch (error) {
+    console.error('❌ Groq AI error:', error.message);
+    throw error; // Will trigger fallback
   }
-  
-  // All models failed
-  console.error(`❌ All Gemini models failed. Last error: ${lastError?.message}`);
-  throw lastError || new Error('No Gemini models available');
 }
 
 /**
