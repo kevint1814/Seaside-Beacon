@@ -721,6 +721,20 @@ function updateVerdictCard() {
     setText('beachName', beach);
     setText('predictionDescription', getVerdictDescription(verdict));
     
+    // Display AI Insight
+    if (state.photographyInsights && state.photographyInsights.insight) {
+        const insightText = document.getElementById('insightText');
+        if (insightText) {
+            insightText.textContent = state.photographyInsights.insight;
+        }
+        
+        // Show AI insight card
+        const aiInsight = document.getElementById('aiInsight');
+        if (aiInsight) {
+            aiInsight.style.display = 'flex';
+        }
+    }
+    
     // Update verdict card class
     const verdictCard = document.querySelector('.verdict-card');
     if (verdictCard) {
