@@ -51,15 +51,21 @@ function isPredictionTimeAvailable() {
  */
 function getTimeUntilAvailable() {
   const now = new Date();
-  const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const currentHour = istTime.getHours();
   
+  // Convert to IST using UTC offset (IST = UTC + 5:30)
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istTime = new Date(now.getTime() + istOffset);
+  const currentHour = istTime.getUTCHours();
+  const currentMinute = istTime.getUTCMinutes();
+  
+  // Available from 6 PM (18:00) to 5:59 AM (05:59)
   if (currentHour >= 18 || currentHour < 6) {
     return { available: true, hoursLeft: 0, minutesLeft: 0 };
   }
   
-  const hoursLeft = 18 - currentHour - 1;
-  const minutesLeft = 60 - istTime.getMinutes();
+  // Between 6 AM and 5:59 PM - calculate time until 6 PM
+  const hoursLeft = 17 - currentHour; // Hours until 6 PM (18:00)
+  const minutesLeft = 60 - currentMinute;
   
   return { available: false, hoursLeft, minutesLeft };
 }
@@ -226,8 +232,10 @@ async function getTomorrow6AMForecast(beachKey) {
   console.log(`\n📡 Fetching AccuWeather data for ${beach.name}...`);
   
   // Log current IST time for debugging
-  const currentIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  console.log(`🕐 Current IST: ${currentIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const currentIST = new Date(now.getTime() + istOffset);
+  console.log(`🕐 Current IST: ${currentIST.toISOString()} (UTC+5:30)`);
 
   const hourlyData = await fetchAccuWeatherHourly(beach.locationKey);
   const forecast6AM = findNext6AM(hourlyData);
