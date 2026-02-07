@@ -1011,6 +1011,9 @@ body {
     .modal-content {
         max-width: 95%;
         border-radius: 12px;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
     }
     
     .modal-content h2 {
@@ -1036,3 +1039,188 @@ body {
     }
 }
 
+/* ===================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS
+   =================================== */
+
+/* Mobile: 0-640px */
+@media (max-width: 640px) {
+    /* Container padding */
+    .container {
+        padding: 0 16px;
+    }
+    
+    /* Header */
+    .header {
+        padding: 24px 0;
+        margin-bottom: 24px;
+    }
+    
+    .header h1 {
+        font-size: clamp(28px, 7vw, 36px);
+    }
+    
+    .subtitle {
+        font-size: clamp(15px, 4vw, 17px);
+    }
+    
+    /* Beach Selection */
+    .beach-card {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .beach-card-title {
+        font-size: 18px;
+    }
+    
+    .beach-card-description {
+        font-size: 14px;
+    }
+    
+    /* Predict Button */
+    #predictBtn {
+        padding: 16px 24px;
+        font-size: 16px;
+        width: 100%;
+    }
+    
+    /* Results Section */
+    .verdict-badge {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    
+    .verdict-title {
+        font-size: clamp(32px, 8vw, 48px);
+    }
+    
+    /* Weather Cards */
+    .weather-card {
+        padding: 16px;
+    }
+    
+    .weather-label {
+        font-size: 13px;
+    }
+    
+    .weather-value {
+        font-size: 20px;
+    }
+    
+    /* Photography Section */
+    .photography-tabs {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .photo-tab {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    /* Timeline */
+    .timeline-step {
+        padding: 16px;
+    }
+    
+    .timeline-content h3 {
+        font-size: 16px;
+    }
+    
+    .timeline-content p {
+        font-size: 14px;
+    }
+}
+
+/* Tablet: 641px-1024px */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .container {
+        padding: 0 24px;
+    }
+    
+    .header h1 {
+        font-size: 42px;
+    }
+    
+    /* 2-column grid for beach cards on tablets */
+    .beach-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Desktop: 1025px+ */
+@media (min-width: 1025px) {
+    /* Wider containers on large screens */
+    .container {
+        max-width: 1280px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger tap targets for touch */
+    button,
+    .beach-card,
+    .photo-tab {
+        min-height: 48px;
+    }
+    
+    /* Disable hover effects on touch devices */
+    .beach-card:hover {
+        transform: none;
+    }
+    
+    .beach-card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 920px) and (orientation: landscape) {
+    /* Reduce vertical spacing in landscape */
+    .header {
+        padding: 16px 0;
+        margin-bottom: 16px;
+    }
+    
+    .modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 375px) {
+    html {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 0 12px;
+    }
+    
+    .header h1 {
+        font-size: 26px;
+    }
+    
+    .subtitle {
+        font-size: 14px;
+    }
+    
+    #predictBtn {
+        font-size: 15px;
+        padding: 14px 20px;
+    }
+}
+
+/* High resolution displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimize for retina displays */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

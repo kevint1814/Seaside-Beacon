@@ -48,40 +48,43 @@ function showColdStartModal() {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         ">
             <div style="
                 background: white;
                 max-width: 500px;
                 width: 100%;
                 border-radius: 20px;
-                padding: 48px;
+                padding: 32px 24px;
                 text-align: center;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
                 animation: slideUp 0.4s ease;
+                margin: auto;
             ">
                 <!-- Animated Sun Icon -->
-                <div style="font-size: 64px; margin-bottom: 24px; animation: pulse 2s infinite;">
+                <div style="font-size: clamp(48px, 12vw, 64px); margin-bottom: 20px; animation: pulse 2s infinite;">
                     🌅
                 </div>
                 
                 <!-- Title -->
                 <h2 style="
-                    font-size: 24px;
+                    font-size: clamp(20px, 5vw, 24px);
                     font-weight: 700;
                     color: #0F0F0F;
-                    margin: 0 0 16px 0;
+                    margin: 0 0 12px 0;
+                    line-height: 1.3;
                 ">
                     Waking Up the Sunrise Engine
                 </h2>
                 
                 <!-- Message -->
                 <p style="
-                    font-size: 16px;
+                    font-size: clamp(14px, 3.5vw, 16px);
                     line-height: 1.6;
                     color: #737373;
-                    margin: 0 0 24px 0;
+                    margin: 0 0 20px 0;
                 ">
                     Our server is starting up to fetch tomorrow's forecast.<br>
                     <strong>This takes about 45 seconds on the first visit.</strong>
@@ -94,7 +97,7 @@ function showColdStartModal() {
                     background: #F5F5F5;
                     border-radius: 4px;
                     overflow: hidden;
-                    margin-bottom: 24px;
+                    margin-bottom: 20px;
                 ">
                     <div id="coldStartProgress" style="
                         height: 100%;
@@ -107,7 +110,7 @@ function showColdStartModal() {
                 
                 <!-- Coffee Icon -->
                 <p style="
-                    font-size: 18px;
+                    font-size: clamp(16px, 4vw, 18px);
                     color: #D64828;
                     margin: 0;
                 ">
@@ -198,28 +201,32 @@ function showWhyWeWaitModal(hours, minutes) {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
         ">
             <div class="why-wait-content" style="
                 background: white;
                 max-width: 600px;
                 width: 100%;
-                border-radius: 20px;
-                padding: 48px;
+                border-radius: 16px;
+                padding: clamp(24px, 5vw, 48px);
                 position: relative;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
                 animation: slideUp 0.4s ease;
+                margin: auto;
+                max-height: 90vh;
+                overflow-y: auto;
             ">
                 <!-- Close Button -->
                 <button class="modal-close" onclick="document.getElementById('whyWeWaitModal').remove()" style="
                     position: absolute;
-                    top: 20px;
-                    right: 20px;
+                    top: 12px;
+                    right: 12px;
                     background: #F5F5F5;
                     border: none;
-                    width: 36px;
-                    height: 36px;
+                    width: 32px;
+                    height: 32px;
                     border-radius: 50%;
                     cursor: pointer;
                     font-size: 20px;
@@ -228,17 +235,18 @@ function showWhyWeWaitModal(hours, minutes) {
                     align-items: center;
                     justify-content: center;
                     transition: all 0.2s;
+                    z-index: 10;
                 " onmouseover="this.style.background='#E5E5E5'" onmouseout="this.style.background='#F5F5F5'">
                     ×
                 </button>
                 
                 <!-- Header -->
-                <div style="text-align: center; margin-bottom: 32px;">
-                    <div style="font-size: 48px; margin-bottom: 16px;">🌅</div>
-                    <h2 style="font-size: 28px; font-weight: 700; color: #0F0F0F; margin: 0 0 12px 0;">
+                <div style="text-align: center; margin-bottom: clamp(20px, 4vw, 32px);">
+                    <div style="font-size: clamp(40px, 10vw, 48px); margin-bottom: 12px;">🌅</div>
+                    <h2 style="font-size: clamp(22px, 5vw, 28px); font-weight: 700; color: #0F0F0F; margin: 0 0 8px 0; line-height: 1.2;">
                         Why We Wait Until 6 PM
                     </h2>
-                    <p style="font-size: 16px; color: #737373; margin: 0;">
+                    <p style="font-size: clamp(14px, 3.5vw, 16px); color: #737373; margin: 0;">
                         Quality predictions over instant guesses
                     </p>
                 </div>
@@ -246,45 +254,45 @@ function showWhyWeWaitModal(hours, minutes) {
                 <!-- Countdown Display -->
                 <div style="
                     background: linear-gradient(135deg, #FFF4ED, #FFE5D9);
-                    border-radius: 16px;
-                    padding: 24px;
+                    border-radius: 12px;
+                    padding: clamp(16px, 4vw, 24px);
                     text-align: center;
-                    margin-bottom: 32px;
+                    margin-bottom: clamp(20px, 4vw, 32px);
                     border: 2px solid #FFD4C0;
                 ">
-                    <div style="font-size: 14px; color: #D64828; font-weight: 600; margin-bottom: 8px;">
+                    <div style="font-size: clamp(12px, 3vw, 14px); color: #D64828; font-weight: 600; margin-bottom: 8px;">
                         NEXT PREDICTION AVAILABLE IN
                     </div>
-                    <div style="font-size: 48px; font-weight: 700; color: #D64828; font-family: 'SF Mono', 'Monaco', monospace;">
+                    <div style="font-size: clamp(36px, 10vw, 48px); font-weight: 700; color: #D64828; font-family: 'SF Mono', 'Monaco', monospace;">
                         ${hours}h ${minutes}m
                     </div>
                 </div>
                 
                 <!-- The Challenge -->
-                <div style="margin-bottom: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
-                        <span style="font-size: 20px; margin-right: 8px;">🌤️</span>
+                <div style="margin-bottom: clamp(16px, 3vw, 24px);">
+                    <h3 style="font-size: clamp(16px, 4vw, 18px); font-weight: 600; color: #0F0F0F; margin: 0 0 10px 0; display: flex; align-items: center;">
+                        <span style="font-size: clamp(18px, 4.5vw, 20px); margin-right: 8px;">🌤️</span>
                         The Challenge
                     </h3>
-                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0;">
+                    <p style="font-size: clamp(14px, 3.5vw, 15px); line-height: 1.6; color: #404040; margin: 0;">
                         Weather conditions are fluid and constantly evolving. Atmospheric parameters can shift dramatically throughout the day. Between 2 PM and 6 PM alone, cloud cover can change by 40%, visibility can double or halve, and wind patterns can completely reverse direction.
                     </p>
                 </div>
                 
                 <!-- Our Solution -->
-                <div style="margin-bottom: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
-                        <span style="font-size: 20px; margin-right: 8px;">🎯</span>
+                <div style="margin-bottom: clamp(16px, 3vw, 24px);">
+                    <h3 style="font-size: clamp(16px, 4vw, 18px); font-weight: 600; color: #0F0F0F; margin: 0 0 10px 0; display: flex; align-items: center;">
+                        <span style="font-size: clamp(18px, 4.5vw, 20px); margin-right: 8px;">🎯</span>
                         Our Solution
                     </h3>
-                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0 0 16px 0;">
+                    <p style="font-size: clamp(14px, 3.5vw, 15px); line-height: 1.6; color: #404040; margin: 0 0 12px 0;">
                         We wait for AccuWeather's fresh 12-hour forecast that becomes available at 6 PM IST. This gives us the most accurate window into tomorrow morning's 6 AM conditions—when you'll actually be experiencing the sunrise.
                     </p>
-                    <div style="background: #FAFAFA; border-radius: 12px; padding: 16px;">
-                        <div style="font-size: 13px; font-weight: 600; color: #0F0F0F; margin-bottom: 12px;">
+                    <div style="background: #FAFAFA; border-radius: 12px; padding: clamp(12px, 3vw, 16px);">
+                        <div style="font-size: clamp(12px, 3vw, 13px); font-weight: 600; color: #0F0F0F; margin-bottom: 10px;">
                             What We Analyze:
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; color: #404040;">
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: clamp(13px, 3.2vw, 14px); color: #404040;">
                             <div>✓ Cloud movement patterns</div>
                             <div>✓ Visibility trends</div>
                             <div>✓ Precipitation probability</div>
@@ -292,19 +300,19 @@ function showWhyWeWaitModal(hours, minutes) {
                             <div>✓ Wind speed evolution</div>
                             <div>✓ Humidity fluctuations</div>
                         </div>
-                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E5E5; font-size: 13px; color: #737373; text-align: center;">
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #E5E5E5; font-size: clamp(12px, 3vw, 13px); color: #737373; text-align: center;">
                             <strong>47+ atmospheric parameters</strong> analyzed for each prediction
                         </div>
                     </div>
                 </div>
                 
                 <!-- The Benefit -->
-                <div style="margin-bottom: 32px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #0F0F0F; margin: 0 0 12px 0; display: flex; align-items: center;">
-                        <span style="font-size: 20px; margin-right: 8px;">⭐</span>
+                <div style="margin-bottom: clamp(20px, 4vw, 32px);">
+                    <h3 style="font-size: clamp(16px, 4vw, 18px); font-weight: 600; color: #0F0F0F; margin: 0 0 10px 0; display: flex; align-items: center;">
+                        <span style="font-size: clamp(18px, 4.5vw, 20px); margin-right: 8px;">⭐</span>
                         The Result
                     </h3>
-                    <p style="font-size: 15px; line-height: 1.6; color: #404040; margin: 0;">
+                    <p style="font-size: clamp(14px, 3.5vw, 15px); line-height: 1.6; color: #404040; margin: 0;">
                         You receive predictions with <strong>95%+ confidence</strong>, not rough estimates. Professional photographers trust precise timing. We do too. This is why we choose accuracy over speed—because your time at the beach matters.
                     </p>
                 </div>
@@ -313,26 +321,28 @@ function showWhyWeWaitModal(hours, minutes) {
                 <div style="
                     background: linear-gradient(135deg, #0F0F0F, #262626);
                     border-radius: 12px;
-                    padding: 24px;
+                    padding: clamp(16px, 4vw, 24px);
                     text-align: center;
                     color: white;
                 ">
-                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                    <div style="font-size: clamp(15px, 3.8vw, 16px); font-weight: 600; margin-bottom: 8px;">
                         📧 Never Miss a Perfect Sunrise
                     </div>
-                    <p style="font-size: 14px; opacity: 0.9; margin: 0 0 16px 0; line-height: 1.5;">
+                    <p style="font-size: clamp(13px, 3.2vw, 14px); opacity: 0.9; margin: 0 0 14px 0; line-height: 1.5;">
                         Get tomorrow's prediction delivered to your inbox at 4:00 AM daily—automatically, reliably, every morning.
                     </p>
                     <button onclick="document.getElementById('whyWeWaitModal').remove(); document.getElementById('emailBtn').click();" style="
                         background: #D64828;
                         color: white;
                         border: none;
-                        padding: 14px 32px;
+                        padding: clamp(12px, 3vw, 14px) clamp(24px, 6vw, 32px);
                         border-radius: 8px;
-                        font-size: 15px;
+                        font-size: clamp(14px, 3.5vw, 15px);
                         font-weight: 600;
                         cursor: pointer;
                         transition: all 0.2s;
+                        width: 100%;
+                        max-width: 280px;
                     " onmouseover="this.style.background='#C23D1F'" onmouseout="this.style.background='#D64828'">
                         Sign Up for Daily Updates
                     </button>
@@ -344,7 +354,7 @@ function showWhyWeWaitModal(hours, minutes) {
     // Add to page
     document.body.insertAdjacentHTML('beforeend', modalHTML);
     
-    // Add animations
+    // Add animations and mobile styles
     const style = document.createElement('style');
     style.textContent = `
         @keyframes fadeIn {
@@ -360,6 +370,18 @@ function showWhyWeWaitModal(hours, minutes) {
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+        
+        /* Mobile optimizations */
+        @media (min-width: 640px) {
+            .why-wait-content {
+                border-radius: 20px !important;
+            }
+        }
+        
+        /* Smooth scrolling on mobile */
+        .why-wait-content {
+            -webkit-overflow-scrolling: touch;
         }
     `;
     document.head.appendChild(style);
