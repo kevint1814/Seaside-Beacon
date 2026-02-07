@@ -50,8 +50,14 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
   "greeting": "One enthusiastic sentence about tomorrow's conditions",
   "insight": "Two sentences about photographic potential and what makes these conditions special",
   "goldenHour": {"start": "5:45 AM", "end": "7:00 AM", "quality": "Excellent/Good/Fair/Poor"},
-  "cameraSettings": {"iso": "100-400", "shutterSpeed": "1/125-1/250", "aperture": "f/8-f/11", "whiteBalance": "5500-6000K"},
-  "compositionTips": ["specific tip about this beach", "tip about these weather conditions", "creative technique suggestion"]
+  "dslr": {
+    "cameraSettings": {"iso": "100-400", "shutterSpeed": "1/125-1/250", "aperture": "f/8-f/11", "whiteBalance": "5500-6000K"},
+    "compositionTips": ["DSLR tip about filters or lenses", "DSLR tip about RAW/exposure for these conditions", "Beach-specific foreground element tip"]
+  },
+  "mobile": {
+    "phoneSettings": {"nightMode": "On/Off", "hdr": "On/Off/Auto", "exposure": "-0.5 to +0.5", "grid": "On"},
+    "compositionTips": ["Phone stabilization or shooting technique", "Phone feature to use (Night/Portrait/HDR) for this weather", "Beach-specific composition tip for phone"]
+  }
 }`;
 
     const completion = await groqClient.chat.completions.create({
@@ -59,7 +65,7 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
       messages: [
         {
           role: "system",
-          content: "You are a professional sunrise photography expert. Always respond with valid JSON only, no markdown formatting."
+          content: "You are a professional sunrise photography expert with expertise in both DSLR and smartphone photography. Always respond with valid JSON only, no markdown formatting."
         },
         {
           role: "user",
@@ -67,7 +73,7 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
         }
       ],
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: 1536,
       response_format: { type: "json_object" }
     });
 
@@ -125,40 +131,76 @@ function generateRuleBasedInsights(weatherData) {
     quality: forecast.cloudCover < 30 ? 'Excellent' : forecast.cloudCover < 60 ? 'Good' : 'Fair'
   };
 
-  const cameraSettings = {
+  // DSLR camera settings
+  const dslrSettings = {
     iso: forecast.cloudCover > 60 ? '400' : forecast.cloudCover > 30 ? '200' : '100',
     shutterSpeed: forecast.cloudCover < 30 ? '1/250' : forecast.cloudCover < 60 ? '1/125' : '1/60',
     aperture: forecast.cloudCover < 40 ? 'f/11' : forecast.cloudCover < 70 ? 'f/8' : 'f/5.6',
     whiteBalance: forecast.cloudCover < 30 ? '5500K' : '6000K'
   };
 
-  const compositionTips = [];
+  // Mobile/Phone settings
+  const mobileSettings = {
+    nightMode: forecast.cloudCover > 50 ? 'On' : 'Off',
+    hdr: forecast.cloudCover > 30 ? 'On' : 'Auto',
+    exposure: forecast.cloudCover > 60 ? '+0.3' : forecast.cloudCover > 30 ? '0.0' : '-0.3',
+    grid: 'On'
+  };
+
+  // DSLR composition tips
+  const dslrTips = [];
   if (forecast.cloudCover < 30) {
-    compositionTips.push('Use rule of thirds to balance bright sun with foreground elements');
-    compositionTips.push('Silhouette subjects against colorful sky for dramatic contrast');
+    dslrTips.push('Use rule of thirds to balance bright sun with foreground elements');
+    dslrTips.push('Try a polarizing filter to enhance sky saturation');
   } else if (forecast.cloudCover < 60) {
-    compositionTips.push('Capture cloud formations as leading lines toward horizon');
-    compositionTips.push('Look for gaps where sunlight creates spotlight effects');
+    dslrTips.push('Capture cloud formations as leading lines toward horizon');
+    dslrTips.push('Shoot in RAW to preserve highlight and shadow detail');
   } else {
-    compositionTips.push('Focus on minimalist compositions with simplified palettes');
-    compositionTips.push('Use long exposures for smooth, ethereal water surfaces');
+    dslrTips.push('Use long exposures (10-30s) for smooth, ethereal water surfaces');
+    dslrTips.push('Focus on minimalist compositions with simplified palettes');
   }
 
-  if (beach.includes('Marina')) {
-    compositionTips.push('Include lighthouse or fishing boats as foreground interest');
-  } else if (beach.includes('Elliot')) {
-    compositionTips.push('Beach sculptures and clean sand make excellent foregrounds');
+  // Mobile composition tips
+  const mobileTips = [];
+  if (forecast.cloudCover < 30) {
+    mobileTips.push('Tap to lock exposure on darker areas before sunrise');
+    mobileTips.push('Use Portrait mode for sharp foreground with blurred background');
+  } else if (forecast.cloudCover < 60) {
+    mobileTips.push('Enable HDR to capture both bright sky and darker foreground');
+    mobileTips.push('Hold phone steady or use a phone tripod for sharper results');
   } else {
-    compositionTips.push('Use natural rock formations to frame your composition');
+    mobileTips.push('Night mode will help capture detail in low light conditions');
+    mobileTips.push('Use timer mode or volume button to avoid camera shake');
   }
+
+  // Beach-specific tip (universal)
+  let beachTip;
+  if (beach.includes('Marina')) {
+    beachTip = 'Include lighthouse or fishing boats as foreground interest';
+  } else if (beach.includes('Elliot')) {
+    beachTip = 'Beach sculptures and clean sand make excellent foregrounds';
+  } else if (beach.includes('Covelong')) {
+    beachTip = 'Use natural rock formations to frame your composition';
+  } else {
+    beachTip = 'Look for interesting foreground elements along the shoreline';
+  }
+
+  dslrTips.push(beachTip);
+  mobileTips.push(beachTip);
 
   return {
     source: 'rules',
     greeting,
     insight,
     goldenHour,
-    cameraSettings,
-    compositionTips: compositionTips.slice(0, 3)
+    dslr: {
+      cameraSettings: dslrSettings,
+      compositionTips: dslrTips.slice(0, 3)
+    },
+    mobile: {
+      phoneSettings: mobileSettings,
+      compositionTips: mobileTips.slice(0, 3)
+    }
   };
 }
 

@@ -299,13 +299,14 @@
                 </div>
 
                 <div class="photography-tabs">
-                    <button class="tab-btn active" data-tab="settings">Camera Settings</button>
-                    <button class="tab-btn" data-tab="golden-hour">Golden Hour</button>
-                    <button class="tab-btn" data-tab="composition">Composition</button>
+                    <button class="tab-btn active" data-tab="dslr">📷 DSLR</button>
+                    <button class="tab-btn" data-tab="mobile">📱 Mobile</button>
+                    <button class="tab-btn" data-tab="golden-hour">⏰ Golden Hour</button>
+                    <button class="tab-btn" data-tab="composition">🎨 Tips</button>
                 </div>
 
-                <!-- Camera Settings Tab -->
-                <div class="tab-content active" data-tab-content="settings">
+                <!-- DSLR Settings Tab -->
+                <div class="tab-content active" data-tab-content="dslr">
                     <div class="camera-settings-grid">
                         <div class="setting-card">
                             <div class="setting-label">ISO</div>
@@ -323,6 +324,40 @@
                             <div class="setting-label">White Balance</div>
                             <div class="setting-value" id="whiteBalanceValue">5500K</div>
                         </div>
+                    </div>
+                    <div class="tips-section">
+                        <h4>📷 DSLR Tips</h4>
+                        <ul class="composition-tips-list" id="dslrTipsList">
+                            <!-- DSLR-specific tips will be inserted here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Mobile Settings Tab -->
+                <div class="tab-content" data-tab-content="mobile">
+                    <div class="camera-settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-label">📱 Night Mode</div>
+                            <div class="setting-value" id="nightModeValue">Off</div>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-label">🌈 HDR</div>
+                            <div class="setting-value" id="hdrValue">Auto</div>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-label">☀️ Exposure</div>
+                            <div class="setting-value" id="exposureValue">0.0</div>
+                        </div>
+                        <div class="setting-card">
+                            <div class="setting-label">📐 Grid</div>
+                            <div class="setting-value" id="gridValue">On</div>
+                        </div>
+                    </div>
+                    <div class="tips-section">
+                        <h4>📱 Mobile Tips</h4>
+                        <ul class="composition-tips-list" id="mobileTipsList">
+                            <!-- Mobile-specific tips will be inserted here -->
+                        </ul>
                     </div>
                 </div>
 
@@ -349,9 +384,12 @@
 
                 <!-- Composition Tips Tab -->
                 <div class="tab-content" data-tab-content="composition">
-                    <ul class="composition-tips-list" id="compositionTipsList">
-                        <!-- AI-generated tips will be inserted here -->
-                    </ul>
+                    <div class="tips-section">
+                        <h4>🎨 Universal Composition Tips</h4>
+                        <ul class="composition-tips-list" id="compositionTipsList">
+                            <!-- Universal composition tips will be inserted here -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
@@ -359,7 +397,7 @@
         <!-- Footer -->
         <footer class="footer">
             <p>Built with ☀️ for Chennai beach lovers</p>
-            <p class="developer-credit">Kevin T</p>
+            <p class="developer-credit">Kevin T • 24BCS1045 • VIT Chennai</p>
         </footer>
     </div>
 

@@ -810,30 +810,94 @@ function getUVIndexStatus(uvIndex) {
 // ==========================================
 // UPDATE PHOTOGRAPHY PANEL
 // ==========================================
+// ==========================================
+// UPDATE PHOTOGRAPHY PANEL
+// ==========================================
 function updatePhotographyPanel() {
     const insights = state.photographyInsights;
     
-    console.log('Updating photography panel');
+    console.log('Updating photography panel with both DSLR and Mobile tips');
     
-    // Greeting
+    // Greeting (universal)
     setText('photographyGreeting', insights.greeting || '🌅 Perfect Conditions!');
     
-    // Camera Settings
-    setText('isoValue', insights.cameraSettings.iso);
-    setText('shutterValue', insights.cameraSettings.shutterSpeed);
-    setText('apertureValue', insights.cameraSettings.aperture);
-    setText('whiteBalanceValue', insights.cameraSettings.whiteBalance);
+    // DSLR Settings
+    if (insights.dslr && insights.dslr.cameraSettings) {
+        setText('isoValue', insights.dslr.cameraSettings.iso);
+        setText('shutterValue', insights.dslr.cameraSettings.shutterSpeed);
+        setText('apertureValue', insights.dslr.cameraSettings.aperture);
+        setText('whiteBalanceValue', insights.dslr.cameraSettings.whiteBalance);
+        
+        // DSLR Tips List
+        const dslrTipsList = document.getElementById('dslrTipsList');
+        if (dslrTipsList && insights.dslr.compositionTips) {
+            dslrTipsList.innerHTML = '';
+            insights.dslr.compositionTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                dslrTipsList.appendChild(li);
+            });
+        }
+    } else if (insights.cameraSettings) {
+        // Backward compatibility
+        setText('isoValue', insights.cameraSettings.iso);
+        setText('shutterValue', insights.cameraSettings.shutterSpeed);
+        setText('apertureValue', insights.cameraSettings.aperture);
+        setText('whiteBalanceValue', insights.cameraSettings.whiteBalance);
+    }
     
-    // Golden Hour
+    // Mobile Settings
+    if (insights.mobile && insights.mobile.phoneSettings) {
+        setText('nightModeValue', insights.mobile.phoneSettings.nightMode);
+        setText('hdrValue', insights.mobile.phoneSettings.hdr);
+        setText('exposureValue', insights.mobile.phoneSettings.exposure);
+        setText('gridValue', insights.mobile.phoneSettings.grid);
+        
+        // Mobile Tips List
+        const mobileTipsList = document.getElementById('mobileTipsList');
+        if (mobileTipsList && insights.mobile.compositionTips) {
+            mobileTipsList.innerHTML = '';
+            insights.mobile.compositionTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                mobileTipsList.appendChild(li);
+            });
+        }
+    }
+    
+    // Golden Hour (universal)
     setText('goldenHourStart', insights.goldenHour.start);
     setText('goldenHourEnd', insights.goldenHour.end);
     setText('goldenHourQuality', insights.goldenHour.quality);
     
-    // Composition Tips
+    // Universal Composition Tips (combine both or use fallback)
     const tipsList = document.getElementById('compositionTipsList');
     if (tipsList) {
         tipsList.innerHTML = '';
-        insights.compositionTips.forEach(tip => {
+        
+        let universalTips = [];
+        
+        // Collect beach-specific and weather-specific tips (last tip from each is usually universal)
+        if (insights.dslr && insights.dslr.compositionTips && insights.dslr.compositionTips.length > 0) {
+            // Last DSLR tip is usually beach-specific (universal)
+            const lastDslrTip = insights.dslr.compositionTips[insights.dslr.compositionTips.length - 1];
+            if (!universalTips.includes(lastDslrTip)) {
+                universalTips.push(lastDslrTip);
+            }
+        }
+        
+        // Add general composition principles
+        universalTips.push('Use the rule of thirds to create balanced, engaging compositions');
+        universalTips.push('Arrive 20-30 minutes before sunrise for the best light');
+        universalTips.push('Look for foreground elements to add depth and interest');
+        
+        // Fallback to old structure
+        if (insights.compositionTips && insights.compositionTips.length > 0) {
+            universalTips = insights.compositionTips;
+        }
+        
+        // Render universal tips
+        universalTips.forEach(tip => {
             const li = document.createElement('li');
             li.textContent = tip;
             tipsList.appendChild(li);
