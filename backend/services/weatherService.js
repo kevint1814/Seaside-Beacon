@@ -102,51 +102,60 @@ async function fetchAccuWeatherHourly(locationKey) {
  * Find next 6 AM IST forecast (today if before 6 AM, tomorrow if after 6 AM)
  */
 function findNext6AM(hourlyData) {
-  // Get current time in IST
+  // Get current time in IST properly
   const now = new Date();
-  const nowIST = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const currentHour = nowIST.getHours();
   
-  // Determine target date
-  const target6AM_IST = new Date(nowIST);
+  // Convert to IST by adding 5.5 hours to UTC
+  const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+  const nowIST = new Date(now.getTime() + istOffset);
+  const currentHour = nowIST.getUTCHours(); // Use UTC methods since we already adjusted for IST
+  const currentMinute = nowIST.getUTCMinutes();
+  
+  console.log(`🕐 Current IST hour: ${currentHour}, minute: ${currentMinute}`);
+  
+  // Create target 6 AM IST
+  let target6AM_IST = new Date(nowIST);
   
   if (currentHour >= 6 && currentHour < 18) {
     // Between 6 AM and 6 PM: Show tomorrow's 6 AM
-    target6AM_IST.setDate(target6AM_IST.getDate() + 1);
-    console.log('⏰ Current time is between 6 AM - 6 PM: Predictions not available yet');
+    target6AM_IST.setUTCDate(target6AM_IST.getUTCDate() + 1);
+    console.log('⏰ Current time is between 6 AM - 6 PM: Showing tomorrow\'s 6 AM forecast');
   } else if (currentHour >= 18) {
     // After 6 PM: Show tomorrow's 6 AM
-    target6AM_IST.setDate(target6AM_IST.getDate() + 1);
+    target6AM_IST.setUTCDate(target6AM_IST.getUTCDate() + 1);
     console.log('⏰ After 6 PM: Showing tomorrow\'s 6 AM forecast');
   } else {
-    // Before 6 AM (midnight to 6 AM): Show today's 6 AM
+    // Before 6 AM (midnight to 5:59 AM): Show today's 6 AM
     console.log('⏰ Before 6 AM: Showing today\'s 6 AM forecast');
   }
   
-  target6AM_IST.setHours(6, 0, 0, 0);
+  // Set to 6:00:00 AM
+  target6AM_IST.setUTCHours(6, 0, 0, 0);
   
-  console.log(`🎯 Target: ${target6AM_IST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
-  console.log(`🎯 Current IST: ${nowIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
+  // Convert back to actual IST for comparison (remove the offset we added)
+  const targetForComparison = new Date(target6AM_IST.getTime() - istOffset);
+  
+  console.log(`🎯 Target: ${target6AM_IST.toISOString()} (IST 6 AM)`);
+  console.log(`🎯 Current: ${nowIST.toISOString()}`);
 
   // Find the forecast entry closest to target 6 AM
-  // AccuWeather returns data in IST timezone already (DateTime field includes +05:30)
   let closestForecast = hourlyData[0];
-  let smallestDiff = Math.abs(new Date(hourlyData[0].DateTime) - target6AM_IST);
+  let smallestDiff = Math.abs(new Date(hourlyData[0].DateTime) - targetForComparison);
 
   hourlyData.forEach((forecast, index) => {
     const forecastTime = new Date(forecast.DateTime);
-    const diff = Math.abs(forecastTime - target6AM_IST);
+    const diff = Math.abs(forecastTime - targetForComparison);
     
     if (diff < smallestDiff) {
       smallestDiff = diff;
       closestForecast = forecast;
-      console.log(`📍 Found closer match at index ${index}: ${forecastTime.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
+      console.log(`📍 Index ${index}: ${forecastTime.toISOString()} (diff: ${(diff/1000/60).toFixed(0)} min)`);
     }
   });
 
   const selectedTime = new Date(closestForecast.DateTime);
-  console.log(`✅ Selected forecast: ${selectedTime.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`);
-  console.log(`📊 Cloud Cover: ${closestForecast.CloudCover}%, Visibility: ${closestForecast.Visibility?.Value} mi, Humidity: ${closestForecast.RelativeHumidity}%`);
+  console.log(`✅ Selected: ${selectedTime.toISOString()}`);
+  console.log(`📊 Cloud: ${closestForecast.CloudCover}%, Vis: ${closestForecast.Visibility?.Value} mi, Humid: ${closestForecast.RelativeHumidity}%`);
 
   return closestForecast;
 }
