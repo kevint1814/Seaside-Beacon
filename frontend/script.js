@@ -403,6 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         initializeBeachSelection();
         initializePredictionButton();
+        initializeShareButton();
         initializeEmailModal();
         initializePhotographyTabs();
         checkPredictionAvailability();
@@ -460,6 +461,30 @@ function initializePredictionButton() {
     predictBtn.addEventListener('click', async function() {
         console.log('🔮 Prediction clicked for:', state.selectedBeach);
         await handlePrediction();
+    });
+}
+
+// ==========================================
+// SHARE BUTTON
+// ==========================================
+function initializeShareButton() {
+    const shareBtn = document.getElementById('sharePredictionBtn');
+    
+    if (!shareBtn) {
+        console.error('❌ Share button not found!');
+        return;
+    }
+    
+    console.log('✅ Share button initialized');
+    
+    shareBtn.addEventListener('click', function() {
+        if (!state.weatherData) {
+            showToast('Please get a prediction first!');
+            return;
+        }
+        
+        console.log('📤 Share button clicked');
+        sharePrediction();
     });
 }
 
@@ -986,6 +1011,104 @@ function getHumidityStatus(humidity) {
     if (humidity < 40) return 'Low';
     if (humidity < 70) return 'Moderate';
     return 'High';
+}
+
+// ==========================================
+// SHARE FUNCTIONALITY
+// ==========================================
+async function sharePrediction() {
+    const verdict = state.weatherData?.prediction?.verdict || 'UNKNOWN';
+    const score = state.weatherData?.prediction?.score || 0;
+    const beach = state.weatherData?.beach || 'Unknown Beach';
+    const visibility = state.weatherData?.forecast?.visibility || 0;
+    const cloudCover = state.weatherData?.forecast?.cloudCover || 0;
+    
+    const shareText = `🌅 Seaside Beacon - Sunrise Prediction
+
+${beach}
+Tomorrow at 6:00 AM IST
+
+Verdict: ${verdict} (${score}% confidence)
+Visibility: ${visibility.toFixed(1)} km
+Cloud Cover: ${cloudCover}%
+
+Check your sunrise forecast: https://seaside-beacon.vercel.app`;
+
+    // Try native share API first (mobile)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Seaside Beacon - Sunrise Prediction',
+                text: shareText
+            });
+            console.log('✅ Shared successfully via native share');
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.log('Share cancelled or failed, trying clipboard fallback');
+                copyToClipboard(shareText);
+            }
+        }
+    } else {
+        // Fallback: Copy to clipboard
+        copyToClipboard(shareText);
+    }
+}
+
+function copyToClipboard(text) {
+    // Try modern clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showToast('Link copied to clipboard! 📋');
+            })
+            .catch(() => {
+                // Fallback to old method
+                fallbackCopy(text);
+            });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
+        showToast('Link copied to clipboard! 📋');
+    } catch (err) {
+        showToast('Could not copy. Please try again.');
+    }
+    
+    document.body.removeChild(textarea);
+}
+
+function showToast(message) {
+    // Remove existing toast if any
+    const existingToast = document.querySelector('.share-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    // Create toast
+    const toast = document.createElement('div');
+    toast.className = 'share-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 // ==========================================
