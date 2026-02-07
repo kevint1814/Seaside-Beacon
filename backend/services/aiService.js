@@ -31,7 +31,7 @@ async function generatePhotographyInsights(weatherData) {
  * AI-powered insights using Gemini
  */
 async function generateAIInsights(weatherData) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   const prompt = `You are a professional sunrise photography expert. Generate recommendations for ${weatherData.beach} tomorrow at 6 AM.
 
