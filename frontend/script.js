@@ -715,11 +715,11 @@ function updateVerdictCard() {
     
     console.log('Verdict:', verdict, 'Score:', score);
     
-    // Update text content
-    setText('verdictText', verdict);
-    setText('verdictScore', score + '%');
+    // Update text content - FIXED: Using correct element IDs
+    setText('statusText', verdict);  // Changed from 'verdictText'
+    setText('confidenceValue', score + '%');  // Changed from 'verdictScore'
     setText('beachName', beach);
-    setText('predictionDescription', getVerdictDescription(verdict));
+    setText('statusDescription', getVerdictDescription(verdict));  // Changed from 'predictionDescription'
     
     // Display AI Insight
     if (state.photographyInsights && state.photographyInsights.insight) {
@@ -767,9 +767,19 @@ function updateWeatherCards() {
     setText('humidityValue', forecast.humidity + '%');
     setText('humidityStatus', getHumidityStatus(forecast.humidity));
     
-    // AQI
-    setText('aqiValue', 'Good');
-    setText('aqiStatus', 'UV: ' + (forecast.uvIndex || 3));
+    // UV Index (renamed from Air Quality)
+    const uvIndex = forecast.uvIndex || 3;
+    setText('aqiValue', uvIndex);
+    setText('aqiStatus', getUVIndexStatus(uvIndex));
+}
+
+// Helper function for UV Index description
+function getUVIndexStatus(uvIndex) {
+    if (uvIndex <= 2) return 'Low';
+    if (uvIndex <= 5) return 'Moderate';
+    if (uvIndex <= 7) return 'High';
+    if (uvIndex <= 10) return 'Very High';
+    return 'Extreme';
 }
 
 // ==========================================
