@@ -28,6 +28,155 @@ let state = {
 };
 
 // ==========================================
+// COLD START MODAL - Server Wake-Up
+// ==========================================
+function showColdStartModal() {
+    // Remove existing if any
+    const existing = document.getElementById('coldStartModal');
+    if (existing) existing.remove();
+    
+    const modalHTML = `
+        <div id="coldStartModal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        ">
+            <div style="
+                background: white;
+                max-width: 500px;
+                width: 100%;
+                border-radius: 20px;
+                padding: 48px;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: slideUp 0.4s ease;
+            ">
+                <!-- Animated Sun Icon -->
+                <div style="font-size: 64px; margin-bottom: 24px; animation: pulse 2s infinite;">
+                    🌅
+                </div>
+                
+                <!-- Title -->
+                <h2 style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #0F0F0F;
+                    margin: 0 0 16px 0;
+                ">
+                    Waking Up the Sunrise Engine
+                </h2>
+                
+                <!-- Message -->
+                <p style="
+                    font-size: 16px;
+                    line-height: 1.6;
+                    color: #737373;
+                    margin: 0 0 24px 0;
+                ">
+                    Our server is starting up to fetch tomorrow's forecast.<br>
+                    <strong>This takes about 45 seconds on the first visit.</strong>
+                </p>
+                
+                <!-- Progress Bar -->
+                <div style="
+                    width: 100%;
+                    height: 8px;
+                    background: #F5F5F5;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    margin-bottom: 24px;
+                ">
+                    <div id="coldStartProgress" style="
+                        height: 100%;
+                        background: linear-gradient(90deg, #D64828, #FF6B4A);
+                        width: 0%;
+                        transition: width 0.5s ease;
+                        animation: progressPulse 1.5s infinite;
+                    "></div>
+                </div>
+                
+                <!-- Coffee Icon -->
+                <p style="
+                    font-size: 18px;
+                    color: #D64828;
+                    margin: 0;
+                ">
+                    ☕ Grab a coffee while we prepare your prediction!
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.id = 'coldStartStyles';
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Animate progress bar
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 2;
+        const progressBar = document.getElementById('coldStartProgress');
+        if (progressBar) {
+            progressBar.style.width = Math.min(progress, 95) + '%';
+        }
+        if (progress >= 95) {
+            clearInterval(progressInterval);
+        }
+    }, 900); // Reaches 95% in ~45 seconds
+    
+    // Store interval ID for cleanup
+    window.coldStartProgressInterval = progressInterval;
+}
+
+function hideColdStartModal() {
+    const modal = document.getElementById('coldStartModal');
+    if (modal) {
+        // Complete progress bar
+        const progressBar = document.getElementById('coldStartProgress');
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+        
+        // Clear interval
+        if (window.coldStartProgressInterval) {
+            clearInterval(window.coldStartProgressInterval);
+        }
+        
+        // Fade out and remove
+        modal.style.opacity = '0';
+        modal.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => modal.remove(), 300);
+        
+        // Remove styles
+        const styles = document.getElementById('coldStartStyles');
+        if (styles) styles.remove();
+    }
+}
+
+// ==========================================
 // "WHY WE WAIT" MODAL - Impressive Explanation
 // ==========================================
 function showWhyWeWaitModal(hours, minutes) {
@@ -338,9 +487,31 @@ async function handlePrediction() {
         // Show processing timeline
         await showProcessingTimeline();
         
+        // Detect cold start - show special modal after 3 seconds
+        const startTime = Date.now();
+        let coldStartShown = false;
+        
+        const coldStartTimeout = setTimeout(() => {
+            if (state.isProcessing) {
+                console.log('🥶 Cold start detected - showing wake-up modal');
+                coldStartShown = true;
+                showColdStartModal();
+            }
+        }, 3000);
+        
         // Fetch prediction
         console.log('📡 Fetching prediction...');
         await fetchPrediction();
+        
+        // Clear timeout and hide modal if shown
+        clearTimeout(coldStartTimeout);
+        if (coldStartShown) {
+            console.log('✅ Server awake - hiding cold start modal');
+            hideColdStartModal();
+        }
+        
+        const loadTime = Date.now() - startTime;
+        console.log(`⏱️ Total load time: ${loadTime}ms`);
         
         // Display results
         console.log('📊 Displaying results...');
@@ -350,6 +521,9 @@ async function handlePrediction() {
         
     } catch (error) {
         console.error('❌ Prediction error:', error);
+        
+        // Always hide cold start modal on error
+        hideColdStartModal();
         
         // Don't show alert if we already showed the impressive modal
         if (error.message !== 'MODAL_SHOWN') {
