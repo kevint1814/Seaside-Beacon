@@ -1,0 +1,53 @@
+name: Wake Render Server for 4 AM IST Daily Emails
+
+on:
+  schedule:
+    # Runs at 10:25 PM UTC = 3:55 AM IST (5 min before emails)
+    - cron: '25 22 * * *'
+  
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  wake-server:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Wake up Render server
+        run: |
+          echo "🌅 Waking server at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "📍 IST time: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')"
+          
+          # Ping server to wake it up
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://seaside-beacon.onrender.com/health || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Server is awake (HTTP $response)"
+          else
+            echo "⏳ Server is waking up (HTTP $response)... waiting 50 seconds"
+            sleep 50
+            
+            # Try again after spinup time
+            response=$(curl -s -o /dev/null -w "%{http_code}" https://seaside-beacon.onrender.com/health || echo "000")
+            
+            if [ "$response" = "200" ]; then
+              echo "✅ Server is now awake (HTTP $response)"
+            else
+              echo "❌ Server wake-up failed (HTTP $response)"
+              exit 1
+            fi
+          fi
+      
+      - name: Verify server is ready
+        run: |
+          echo "🔍 Verifying server health..."
+          curl -f https://seaside-beacon.onrender.com/health
+          echo ""
+          echo "✅ Server is healthy and ready!"
+          echo "⏰ Cron job will trigger at 4:00 AM IST (in ~5 minutes)"
+      
+      - name: Success notification
+        run: |
+          echo "======================================"
+          echo "🎉 Server wake-up successful!"
+          echo "📧 Daily emails will be sent at 4:00 AM IST"
+          echo "======================================"

@@ -59,6 +59,15 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check endpoint for external monitoring
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 app.use('/api', subscribeRoutes);
 app.use('/api', predictRoutes);
 
