@@ -1,23 +1,23 @@
 // ==========================================
-// Email Service - Gmail Integration
+// Email Service - SendGrid API Integration
 // ==========================================
 
 const nodemailer = require('nodemailer');
+const nodemailerSendgrid = require('nodemailer-sendgrid');
 
+/**
+ * Create SendGrid transporter (works on Render free tier)
+ */
 function createTransporter() {
-  // Use Brevo (Sendinblue) for reliable SMTP
-  return nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.BREVO_USER || process.env.GMAIL_USER, // Your Brevo login email
-      pass: process.env.BREVO_API_KEY || process.env.GMAIL_APP_PASSWORD // Brevo SMTP key
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
+  if (!process.env.SENDGRID_API_KEY) {
+    throw new Error('SENDGRID_API_KEY is not configured');
+  }
+
+  return nodemailer.createTransport(
+    nodemailerSendgrid({
+      apiKey: process.env.SENDGRID_API_KEY
+    })
+  );
 }
 
 /**
@@ -30,11 +30,55 @@ async function sendWelcomeEmail(subscriberEmail, beachName) {
     const mailOptions = {
       from: {
         name: 'Seaside Beacon',
-        address: process.env.GMAIL_USER
+        address: process.env.GMAIL_USER || 'seasidebeacon@gmail.com'
       },
       to: subscriberEmail,
       subject: '🌅 Welcome to Seaside Beacon',
-      html: `
+      html: generateWelcomeEmailHTML(beachName)
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Welcome email sent to ${subscriberEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Welcome email error:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Send daily prediction email
+ */
+async function sendDailyPredictionEmail(subscriberEmail, weatherData, photographyInsights) {
+  try {
+    const transporter = createTransporter();
+    const { beach, forecast, prediction } = weatherData;
+    const statusColor = prediction.score >= 65 ? '#059669' : prediction.score >= 50 ? '#D97706' : '#DC2626';
+
+    const mailOptions = {
+      from: {
+        name: 'Seaside Beacon',
+        address: process.env.GMAIL_USER || 'seasidebeacon@gmail.com'
+      },
+      to: subscriberEmail,
+      subject: `🌅 Tomorrow's Sunrise: ${prediction.verdict} at ${beach}`,
+      html: generatePredictionEmailHTML(weatherData, photographyInsights, statusColor)
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Daily prediction sent to ${subscriberEmail}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Daily email error:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Generate HTML for welcome email
+ */
+function generateWelcomeEmailHTML(beachName) {
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -84,35 +128,16 @@ async function sendWelcomeEmail(subscriberEmail, beachName) {
   </div>
 </body>
 </html>
-      `
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Welcome email sent to ${subscriberEmail}`);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('❌ Welcome email error:', error.message);
-    throw error;
-  }
+  `;
 }
 
 /**
- * Send daily prediction email
+ * Generate HTML for daily prediction email
  */
-async function sendDailyPredictionEmail(subscriberEmail, weatherData, photographyInsights) {
-  try {
-    const transporter = createTransporter();
-    const { beach, forecast, prediction } = weatherData;
-    const statusColor = prediction.score >= 65 ? '#059669' : prediction.score >= 50 ? '#D97706' : '#DC2626';
-
-    const mailOptions = {
-      from: {
-        name: 'Seaside Beacon',
-        address: process.env.GMAIL_USER
-      },
-      to: subscriberEmail,
-      subject: `🌅 Tomorrow's Sunrise: ${prediction.verdict} at ${beach}`,
-      html: `
+function generatePredictionEmailHTML(weatherData, photographyInsights, statusColor) {
+  const { beach, forecast, prediction } = weatherData;
+  
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -184,16 +209,7 @@ async function sendDailyPredictionEmail(subscriberEmail, weatherData, photograph
   </div>
 </body>
 </html>
-      `
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Daily prediction sent to ${subscriberEmail}`);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('❌ Daily email error:', error.message);
-    throw error;
-  }
+  `;
 }
 
 module.exports = {
