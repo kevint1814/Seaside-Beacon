@@ -31,8 +31,17 @@ async function generatePhotographyInsights(weatherData) {
  * AI-powered insights using Gemini
  */
 async function generateAIInsights(weatherData) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
+  // Try multiple model names in order
+  const modelsToTry = [
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro-latest',
+    'gemini-1.5-pro',
+    'gemini-pro',
+    'models/gemini-1.5-flash',
+    'models/gemini-pro'
+  ];
+  
   const prompt = `You are a professional sunrise photography expert. Generate recommendations for ${weatherData.beach} tomorrow at 6 AM.
 
 Weather: ${weatherData.forecast.temperature}°C, ${weatherData.forecast.cloudCover}% clouds, ${weatherData.forecast.visibility}km visibility, ${weatherData.forecast.windSpeed}km/h wind, ${weatherData.forecast.weatherDescription}.
@@ -46,15 +55,37 @@ Respond ONLY with valid JSON (no markdown):
   "compositionTips": ["tip1", "tip2", "tip3"]
 }`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().replace(/```json\n?/g, '').replace(/```/g, '').trim();
+  let lastError;
   
-  try {
-    const aiData = JSON.parse(text);
-    return { source: 'ai', ...aiData };
-  } catch {
-    return generateRuleBasedInsights(weatherData);
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`🧪 Trying Gemini model: ${modelName}`);
+      
+      const model = genAI.getGenerativeModel({ 
+        model: modelName,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+        }
+      });
+      
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().replace(/```json\n?/g, '').replace(/```/g, '').trim();
+      
+      const aiData = JSON.parse(text);
+      console.log(`✅ Successfully used Gemini model: ${modelName}`);
+      return { source: 'ai', model: modelName, ...aiData };
+      
+    } catch (error) {
+      console.warn(`⚠️  Model ${modelName} failed: ${error.message}`);
+      lastError = error;
+      continue;
+    }
   }
+  
+  // All models failed
+  console.error(`❌ All Gemini models failed. Last error: ${lastError?.message}`);
+  throw lastError || new Error('No Gemini models available');
 }
 
 /**
