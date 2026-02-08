@@ -105,7 +105,7 @@ function generateWelcomeEmailHTML(beachName) {
     <div class="content">
       <h2>Never Miss Another Perfect Sunrise</h2>
       <p>Thank you for subscribing! You've unlocked daily AI-powered sunrise predictions for <strong>${beachName}</strong>.</p>
-      <p>Every morning at 4:00 AM IST, we'll send you today's sunrise forecast so you can plan your perfect beach morning.</p>
+      <p>Every morning at 4:00 AM IST, we'll send you the sunrise forecast so you can plan your perfect beach morning.</p>
       <div class="feature">
         <div class="feature-item">
           <span class="feature-icon">🤖</span>
@@ -117,7 +117,7 @@ function generateWelcomeEmailHTML(beachName) {
         </div>
         <div class="feature-item">
           <span class="feature-icon">🌤️</span>
-          <div><strong>Today's 6 AM Forecast</strong><br>Precise weather data for sunrise time</div>
+          <div><strong>6 AM Forecast</strong><br>Precise weather data for sunrise time</div>
         </div>
       </div>
       <p><strong>Your first prediction arrives tomorrow morning at 4:00 AM!</strong></p>
