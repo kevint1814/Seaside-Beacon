@@ -633,6 +633,18 @@ body {
     margin-right: var(--spacing-sm);
 }
 
+.tips-section {
+    margin-top: var(--spacing-lg);
+}
+
+.tips-section h4 {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: var(--spacing-md);
+}
+
 /* Modal */
 .modal-overlay {
     display: none;
