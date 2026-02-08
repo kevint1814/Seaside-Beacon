@@ -1,5 +1,6 @@
 // ==========================================
 // Email Service - SendGrid API Integration
+// FIXED: Today/Tomorrow text, typos, data structure compatibility
 // ==========================================
 
 const nodemailer = require('nodemailer');
@@ -61,7 +62,7 @@ async function sendDailyPredictionEmail(subscriberEmail, weatherData, photograph
         address: process.env.GMAIL_USER || 'seasidebeacon@gmail.com'
       },
       to: subscriberEmail,
-      subject: `🌅 Tomorrow's Sunrise: ${prediction.verdict} at ${beach}`,
+      subject: `🌅 Sunrise Forecast (6 AM): ${prediction.verdict} at ${beach}`,
       html: generatePredictionEmailHTML(weatherData, photographyInsights, statusColor)
     };
 
@@ -104,7 +105,7 @@ function generateWelcomeEmailHTML(beachName) {
     <div class="content">
       <h2>Never Miss Another Perfect Sunrise</h2>
       <p>Thank you for subscribing! You've unlocked daily AI-powered sunrise predictions for <strong>${beachName}</strong>.</p>
-      <p>Every morning at 4:00 AM IST, we'll send you tomorrow's sunrise forecast so you can plan your perfect beach morning.</p>
+      <p>Every morning at 4:00 AM IST, we'll send you today's sunrise forecast so you can plan your perfect beach morning.</p>
       <div class="feature">
         <div class="feature-item">
           <span class="feature-icon">🤖</span>
@@ -116,7 +117,7 @@ function generateWelcomeEmailHTML(beachName) {
         </div>
         <div class="feature-item">
           <span class="feature-icon">🌤️</span>
-          <div><strong>Tomorrow's 6 AM Forecast</strong><br>Precise weather data for sunrise time</div>
+          <div><strong>Today's 6 AM Forecast</strong><br>Precise weather data for sunrise time</div>
         </div>
       </div>
       <p><strong>Your first prediction arrives tomorrow morning at 4:00 AM!</strong></p>
@@ -136,6 +137,20 @@ function generateWelcomeEmailHTML(beachName) {
  */
 function generatePredictionEmailHTML(weatherData, photographyInsights, statusColor) {
   const { beach, forecast, prediction } = weatherData;
+  
+  // Handle both old and new AI data structures for backward compatibility
+  const cameraSettings = photographyInsights.dslr?.cameraSettings || photographyInsights.cameraSettings || {
+    iso: '200',
+    shutterSpeed: '1/125',
+    aperture: 'f/8',
+    whiteBalance: '5500K'
+  };
+  
+  const compositionTips = photographyInsights.dslr?.compositionTips || photographyInsights.compositionTips || [
+    'Use rule of thirds for balanced composition',
+    'Include foreground elements for depth',
+    'Shoot during golden hour for best light'
+  ];
   
   return `
 <!DOCTYPE html>
@@ -163,48 +178,54 @@ function generatePredictionEmailHTML(weatherData, photographyInsights, statusCol
     .tips-list li { padding: 12px; background: #FAFAFA; border-radius: 6px; margin-bottom: 8px; }
     .tips-list li:before { content: "📸"; margin-right: 8px; }
     .footer { background: #FAFAFA; padding: 24px; text-align: center; font-size: 13px; color: #737373; }
+    .unsubscribe { margin-top: 16px; }
+    .unsubscribe a { color: #737373; text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>${prediction.verdict}</h1>
-      <p>Tomorrow's Sunrise at ${beach}</p>
+      <p>Today's Sunrise at ${beach}</p>
     </div>
     <div class="content">
       <div class="prediction-card">
-        <p class="score">${prediction.score}</p>
-        <p class="verdict">Visibility Score</p>
-        <p style="color: #737373; margin: 8px 0 0 0;">Tomorrow at 6:00 AM IST</p>
+        <p class="score">${prediction.score}%</p>
+        <p class="verdict">Confidence Score</p>
+        <p style="color: #737373; margin: 8px 0 0 0;">Today at 6:00 AM IST</p>
       </div>
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Weather Conditions</h2>
+      <h2 style="font-size: 20px; margin-bottom: 16px;">☀️ Weather Conditions</h2>
       <div class="weather-grid">
         <div class="weather-item"><div class="weather-label">Temperature</div><div class="weather-value">${forecast.temperature}°C</div></div>
         <div class="weather-item"><div class="weather-label">Cloud Cover</div><div class="weather-value">${forecast.cloudCover}%</div></div>
-        <div class="weather-item"><div class="weather-label">Humidity</div><div class="weather-value">${forecast.humidity}%</div></div>
+        <div class="weather-item"><div class="weather-label">Visibility</div><div class="weather-value">${forecast.visibility} km</div></div>
         <div class="weather-item"><div class="weather-label">Wind Speed</div><div class="weather-value">${forecast.windSpeed} km/h</div></div>
       </div>
       <div class="insight-box">
         <h3 style="color: #D64828; margin: 0 0 12px 0;">🤖 AI Photography Insight</h3>
-        <p style="margin: 0;">${photographyInsights.insight}</p>
+        <p style="margin: 0;">${photographyInsights.insight || 'Perfect conditions for sunrise photography!'}</p>
       </div>
-      <h3 style="font-size: 18px; margin: 24px 0 12px 0;">📸 Recommended Camera Settings</h3>
+      <h3 style="font-size: 18px; margin: 24px 0 12px 0;">📷 Recommended Camera Settings (DSLR)</h3>
       <div class="camera-settings">
-        <div class="setting-item"><div class="setting-label">ISO</div><div class="setting-value">${photographyInsights.cameraSettings.iso}</div></div>
-        <div class="setting-item"><div class="setting-label">Shutter</div><div class="setting-value">${photographyInsights.cameraSettings.shutterSpeed}</div></div>
-        <div class="setting-item"><div class="setting-label">Aperture</div><div class="setting-value">${photographyInsights.cameraSettings.aperture}</div></div>
-        <div class="setting-item"><div class="setting-label">White Balance</div><div class="setting-value">${photographyInsights.cameraSettings.whiteBalance}</div></div>
+        <div class="setting-item"><div class="setting-label">ISO</div><div class="setting-value">${cameraSettings.iso}</div></div>
+        <div class="setting-item"><div class="setting-label">Shutter</div><div class="setting-value">${cameraSettings.shutterSpeed}</div></div>
+        <div class="setting-item"><div class="setting-label">Aperture</div><div class="setting-value">${cameraSettings.aperture}</div></div>
+        <div class="setting-item"><div class="setting-label">White Balance</div><div class="setting-value">${cameraSettings.whiteBalance}</div></div>
       </div>
       <h3 style="font-size: 18px; margin: 24px 0 12px 0;">💡 Composition Tips</h3>
       <ul class="tips-list">
-        ${photographyInsights.compositionTips.map(tip => `<li>${tip}</li>`).join('')}
+        ${compositionTips.map(tip => `<li>${tip}</li>`).join('')}
       </ul>
       <p style="margin-top: 24px; padding: 16px; background: #F5F5F5; border-radius: 8px; text-align: center;">
-        <strong>Golden Hour:</strong> ${photographyInsights.goldenHour.start} - ${photographyInsights.goldenHour.end} (${photographyInsights.goldenHour.quality})
+        <strong>⏰ Golden Hour:</strong> ${photographyInsights.goldenHour.start} - ${photographyInsights.goldenHour.end} (${photographyInsights.goldenHour.quality})
       </p>
     </div>
     <div class="footer">
-      <p><strong>Seaside Beacon</strong> - Daily at 4:00 AM IST</p>
+      <p><strong>Seaside Beacon</strong> - Daily sunrise forecasts at 4:00 AM IST</p>
+      <p style="margin-top: 12px; color: #A3A3A3; font-size: 12px;">Made with ☀️ for Chennai beach lovers</p>
+      <div class="unsubscribe">
+        <p><a href="https://seaside-beacon.vercel.app">Unsubscribe</a> from daily emails</p>
+      </div>
     </div>
   </div>
 </body>
