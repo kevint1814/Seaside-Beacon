@@ -16,7 +16,7 @@ const subscriberSchema = new mongoose.Schema({
   preferredBeach: {
     type: String,
     required: true,
-    enum: ['marina', 'elliot', 'covelong', 'mahabalipuram'],
+    enum: ['marina', 'elliot', 'covelong', 'thiruvanmiyur'],
     default: 'marina'
   },
   isActive: {
